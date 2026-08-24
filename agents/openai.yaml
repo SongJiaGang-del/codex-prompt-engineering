@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Prompt Engineering"
+  short_description: "Generate precise, verifiable coding prompts"
+  default_prompt: "Use $codex-prompt-engineering to turn this requirement into a precise, implementation-ready coding prompt."
