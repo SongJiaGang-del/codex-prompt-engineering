@@ -1,100 +1,89 @@
 ---
 name: codex-prompt-engineering
-description: Generate concise, implementation-ready prompts for Codex, Cline, and other coding agents. Use when the user asks to turn requirements, discussions, bug reports, review requests, or architecture ideas into a coding prompt, task specification, engineering blueprint, or verification plan. Do not use for ordinary code implementation unless prompt generation is explicitly requested.
+description: Turn requirements or discussions into coding-agent prompts, task specifications, or verification plans. Use when the requested deliverable is a prompt or task brief, including prompt rewrites and cross-agent handoffs. Do not take over ordinary implementation, debugging, review, or design work.
 ---
 
 # Codex Prompt Engineering
 
-## Overview
+Turn engineering requests into task briefs that preserve intent, evidence, and acceptance conditions. Remove repetition without losing information that changes an implementation decision.
 
-Turn incomplete or verbose engineering requests into prompts that a coding agent can execute with minimal ambiguity. Preserve decision-relevant context while removing repetition; correctness, safety, compatibility, and verification take priority over token minimization.
+## Scope and Output Size
 
-## Trigger Boundary
+Use this skill when the deliverable is a prompt, task brief, implementation specification, coding blueprint, or prompt rewrite. It does not replace implementation, debugging, code review, security, testing, UI design, research, or document workflows. A review prompt remains a request to review, not authorization to fix findings.
 
-Use this skill when the requested output is a prompt, task brief, implementation specification, coding blueprint, or prompt rewrite.
+Choose the smallest useful form, considering ambiguity and consequence as well as task size:
 
-Do not let this skill replace specialized workflows for implementation, debugging, code review, security, testing, UI design, research, or document creation. In those cases, use this skill only when the user explicitly asks to improve the prompt or task specification.
+- **Short instruction:** A bounded, well-understood change. Use a paragraph or a few bullets covering the outcome, limits, and proportionate verification. Do not add headings, tests, or process solely to fill a template.
+- **Structured brief:** Multiple behaviors, interfaces, compatibility limits, or acceptance conditions need coordination. Select useful sections from the format below.
+- **Discovery brief:** The goal, root cause, or a material contract is unresolved. Specify what to inspect, questions to settle, and evidence needed before dependent implementation. Complete any independent, authorized scope; do not invent a solution to make the brief look executable.
 
-## Construction Workflow
+Honor the user's requested format. If an existing specification is sufficient, make the requested correction or extract the current task instead of rewriting everything. Consult [examples](references/examples.md) only when an example would help choose the level of detail.
 
-Follow this sequence:
+## Preserve Facts and Decisions
 
-1. Extract the desired outcome and rewrite it as one measurable objective.
-2. Separate required behavior, implementation suggestions, and non-goals.
-3. Identify repository facts, files, modules, routes, interfaces, data models, and runtime assumptions.
-4. State constraints, compatibility requirements, and negative requirements.
-5. Define edge cases, failure behavior, and state transitions when relevant.
-6. Define concrete verification commands and acceptance criteria.
-7. Label bounded assumptions and unresolved questions.
-8. Remove repetition and vague wording without removing information that affects an implementation decision.
+Before drafting, distinguish the following where confusing them could affect the work:
 
-Never invent repository paths, APIs, dependencies, test results, or product behavior. If repository inspection is required, instruct the coding agent to inspect the repository before editing.
+- **Requirement:** Behavior or a boundary explicitly requested by the user. Preserve exact names, values, exclusions, and the scope of any approval.
+- **Verified fact:** Supported by inspected source or observed output. Keep a compact source anchor for decision-critical facts, such as a file and symbol, document section, or observed command and result. Preserve relevant revision or environment limits; do not imply an old observation is current.
+- **Reported or unresolved:** A user-reported symptom, uninspected repository claim, or hypothesis. Attribute it and state what would confirm or disprove it. A suspected cause must not become an instruction to implement that cause's presumed fix.
+- **Suggestion:** An optional implementation approach. Leave internal design to repository conventions unless the user has made it a requirement.
 
-## Prompt Format
+Use plain labels only where needed; a small task does not need a facts table. Never invent paths, APIs, dependencies, commands, test results, or product behavior. Inspect relevant available sources when needed to ground the brief; otherwise identify what the execution agent must discover before editing.
 
-Output only sections that contain useful information:
+For long discussions, reconcile revisions before compression. A later explicit revision of the same requirement replaces the earlier version; unrelated later remarks do not cancel existing limits. Exclude withdrawn decisions from active requirements, retaining a short "superseded" note only when it prevents likely reintroduction. Preserve unresolved conflicts rather than choosing silently.
 
-### Context
+Ask a focused question when an unresolved choice would materially change architecture, data, security, or user-visible behavior and cannot be settled by inspection. When the requested deliverable is a handoff, include that question and the dependent work boundary in the brief; the receiving agent must settle it before acting on that part. Do not turn a request to draft a prompt into permission to perform its implementation or external actions.
 
-Relevant product, repository, architecture, existing behavior, and prior decisions.
+## Construct the Brief
 
-### Objective
+State one coherent outcome, separating required behavior, optional approaches, and non-goals. Add relevant failure behavior and state transitions, not speculative edge cases. Use observable behavior instead of "properly" or "make it better."
 
-One concrete implementation outcome.
+For a structured brief, include only useful sections:
 
-### Scope
+- **Context:** Relevant product behavior, source anchors, and current decisions.
+- **Objective:** The concrete outcome of this task or discovery phase.
+- **Scope:** Required changes, ownership boundaries, exclusions, and preserved behavior.
+- **Files and Interfaces:** Known paths, routes, signatures, schemas, and contracts; explicit discovery work for unknowns.
+- **Constraints:** Applicable compatibility, dependency, migration, performance, security, or style requirements.
+- **Implementation Requirements:** Behavioral rules, integration details, and relevant failure handling without unnecessary internal design prescriptions.
+- **Verification:** Independently checkable acceptance conditions and the evidence needed for each.
+- **Deliverables:** Requested changes and supporting artifacts, scaled to the work.
+- **Assumptions and Questions:** Remaining uncertainty and which dependent work must wait for resolution.
 
-Required changes and explicitly excluded changes.
+Adapt the substance to the task; these modes describe prompt content, not extra workflows to run:
 
-### Files and Interfaces
+- **Implement:** Required behavior, interfaces, failure cases, and acceptance.
+- **Fix:** Reported symptoms, reproduction evidence, hypotheses to test, fix boundaries, and proportionate regression coverage. Distinguish authorized, reversible diagnostic experiments from applying an unproven fix; an uncertain root cause is not a blanket ban on testing a hypothesis.
+- **Refactor:** Preserved behavior, compatibility, allowed structural changes, and regression checks.
+- **Review:** Review scope or baseline, standards, risk priorities, and actionable finding format.
+- **Design:** Alternatives, decision criteria, tradeoffs, and whether a direction is selected or still open.
+- **Research:** Questions, authoritative sources, and required evidence format.
 
-Known files, modules, routes, types, schemas, function signatures, and ownership boundaries. If unknown, state what must be discovered.
+## Make Verification Executable and Honest
 
-### Constraints
+For each material acceptance condition, specify observable evidence and an appropriate check. Reuse commands only when supplied or discovered; when unknown, direct the agent to discover the relevant scripts, environment, and invocation first. Do not assume a package manager, browser, account, service, or test runner is available.
 
-Compatibility, dependency, performance, security, migration, style, and backward-compatibility requirements. Include negative constraints such as "Do not change the public API" or "Do not remove legacy behavior before parity is verified."
+Match verification to the change. A small reversible edit may need a focused diff or visual check; behavior changes may need targeted tests and runtime checks. Do not require unrelated suites, screenshots, or new tests solely because they appear in the format.
 
-### Implementation Requirements
+Keep these states distinct when reporting existing evidence or instructing the receiver to report results:
 
-Behavioral rules, edge cases, error handling, and integration details. Do not over-prescribe internal design when repository conventions should determine it.
+- **Planned:** A check or acceptance condition to perform; no result is implied.
+- **Verified:** An observed result with its evidence and scope. Source inspection, build success, test results, and browser interaction establish different things.
+- **Unverified or blocked:** A check was not performed or could not be completed. State the reason and remaining acceptance gap. A fallback check may add evidence but cannot silently replace required runtime or human acceptance.
 
-### Verification
+A completed prompt is a deliverable, not proof that the described implementation has passed. Do not carry forward a success, approval, or freeze claim beyond the evidence or scope supporting it.
 
-Concrete tests, type checks, build commands, browser workflows, static checks, or manual acceptance checks. Distinguish source-level evidence from runtime evidence.
+## Check for Lost or Added Requirements
 
-### Deliverables
+Before returning the prompt, compare it with the source request and current decisions:
 
-Expected code changes, tests, documentation, migration files, reports, or screenshots.
+- Every required behavior, prohibition, exact identifier or value, approval limit, and acceptance condition is retained or explicitly unresolved.
+- No hypothesis, suggestion, withdrawn decision, or new external action has become an authorized requirement.
+- Each material unknown has a discovery step or question, and dependent work has a clear boundary.
+- Repetition and irrelevant background are removed without deleting decision-critical evidence.
 
-### Assumptions and Questions
+This is a content check, not a requirement to print another checklist. Include a compact requirement-to-section mapping only when requested or when a complex handoff needs traceability.
 
-Label assumptions explicitly. Ask questions only when different answers would materially change architecture, data, security, or user-visible behavior.
+## Delivery
 
-Omit empty sections. Keep the final prompt ready to paste into a coding agent.
-
-## Task Modes
-
-Adapt the prompt to the requested mode:
-
-- Implement: behavior, scope, interfaces, tests, and acceptance criteria.
-- Fix: symptoms, reproduction, evidence, suspected root cause, regression test, and fix boundaries.
-- Refactor: invariants, compatibility requirements, allowed structural changes, and regression checks.
-- Review: review scope, standards, risk priorities, and required finding format.
-- Design: alternatives, decision criteria, tradeoffs, and selected direction.
-- Research: authoritative sources, questions to answer, and required evidence format.
-
-## Quality Rules
-
-- Use exact names and signatures when known.
-- Replace vague terms such as "properly" or "make it better" with observable behavior.
-- Define failure behavior, not only the happy path.
-- Distinguish must-have requirements from suggestions.
-- Keep unrelated background out of the prompt.
-- Make each acceptance criterion independently checkable.
-- Do not promise completion unless the specified verification has passed.
-- Prefer focused diffs and precise anchors for code-edit instructions.
-- Provide complete files only for new files or when explicitly requested.
-
-## Output Style
-
-When the user asks for a prompt, provide the ready-to-use prompt first. Keep any explanation brief and separate. Avoid greetings, generic advice, and motivational text.
+Provide the ready-to-use prompt first, in the user's language unless requested otherwise. State each constraint once, referring back only when useful; avoid repeating the same caveat under context, implementation, verification, and deliverables. Keep any explanation brief and separate; omit empty sections, greetings, and generic advice. For code-edit briefs, prefer focused diffs and known anchors; request complete files only for new files or when explicitly requested.
