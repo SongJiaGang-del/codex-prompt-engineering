@@ -1,8 +1,12 @@
 # Codex Prompt Engineering
 
+**简体中文** | [English](README.en.md)
+
 把需求、讨论和 Bug 报告整理成可直接交给编码代理的任务提示词，保留关键事实、最新决定、修改范围和验收条件。
 
 适合复杂需求整理和跨任务交接。根据任务选择短指令、结构化任务书或发现任务书，避免把简单修改写成冗长规格。核心规则见 [SKILL.md](SKILL.md)。
+
+**先看输出：** [三个完整示例](references/examples.md) · [实际抽查与修订记录](evals/2026-09-13-results.md)
 
 ## 快速开始
 
@@ -87,6 +91,7 @@ SKILL.md 位于仓库根目录，安装名称使用 codex-prompt-engineering。
 codex-prompt-engineering/
 ├── SKILL.md                     核心行为规则
 ├── README.md                    使用说明
+├── README.en.md                 English guide
 ├── agents/openai.yaml           Codex 界面元数据与默认调用提示
 ├── references/examples.md       三个虚构教学示例，按需阅读
 └── evals/
@@ -107,6 +112,12 @@ codex-prompt-engineering/
 查看 [抽查方法](evals/README.md) 和 [完整输出与复测记录](evals/2026-09-13-results.md)。
 
 这是指令型 skill，没有额外执行工具。本次未在真实项目中对照“直接执行”“通用模板”和“使用本 skill”的结果，因此尚无编码成功率、Token 节省或总耗时改善的证据。提示词生成完成，也不代表其中描述的实现已经完成或通过验收。
+
+## 反馈与支持
+
+如果它帮助你整理了复杂需求或完成一次交接，欢迎 Star，方便以后找到这个项目。
+
+更有价值的反馈是实际失败案例：提示词漏掉了什么要求、把什么假设写成了事实，或是否增加了不必要的步骤。可以在 [Issues](https://github.com/SongJiaGang-del/codex-prompt-engineering/issues) 中提供脱敏后的原始请求、生成结果与期望行为，帮助后续修订。
 
 ## License
 
